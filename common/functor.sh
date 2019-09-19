@@ -233,6 +233,17 @@ launch() {
   return 0
 }
 
+calc_md5() {
+  local md5=
+  check_file $1 || return
+  md5=`md5sum $1`
+  echo ${md5%% *}
+}
+
+which_arch() {
+  uname -m
+}
+
 _0=$0
 foo() {
   set -x
