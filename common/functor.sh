@@ -1,5 +1,8 @@
 #!/bin/bash
 
+#indicate project directory, set by yourself
+ROOT_DIR=
+
 _source() {
   [ -f $1 ] && . $1
 }
