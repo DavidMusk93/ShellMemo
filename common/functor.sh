@@ -55,7 +55,7 @@ _killall() {
 }
 
 check_rc() {
-  return $1
+  return $?
 }
 
 assert_empty() {
