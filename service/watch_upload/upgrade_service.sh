@@ -6,7 +6,7 @@
 fetch_md5() {
   rm -f $tmp_exe_md5
   wget $remote_exe_md5 -O $tmp_exe_md5
-  check_rc $? || return
+  check_rc || return
   cat $tmp_exe_md5
 }
 
@@ -46,6 +46,8 @@ do_upgrade() {
   safe_kill $pid
 
   mv $tmp_exe $local_exe
+  chmod +x $local_exe
+  touch /tmp/$exe@last_update@`timestamp`
   has_update=false
   return 0
 }
