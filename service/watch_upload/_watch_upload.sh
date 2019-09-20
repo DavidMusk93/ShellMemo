@@ -30,7 +30,6 @@ on_modify() {
 
   mv $watch_target $work_dir
   mv $md5_target $work_dir
-  chmod +x $_1
 
   touch $watch_target
   #sleep 60
