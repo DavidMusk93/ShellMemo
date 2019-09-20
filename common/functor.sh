@@ -127,7 +127,8 @@ peek_content() {
 }
 
 ping_check() {
-  ping -c 3 -w 5 $1
+  local timeout=${2-5}
+  ping -c 3 -w $timeout $1
   return $?
 }
 
