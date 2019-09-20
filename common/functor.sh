@@ -15,7 +15,7 @@ check_zero() {
 }
 
 check_empty() {
-  [ ! $1 ]
+  [ ! "$*" ]
   return $?
 }
 
