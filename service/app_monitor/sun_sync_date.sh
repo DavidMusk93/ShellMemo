@@ -5,7 +5,7 @@ PRIORITY=1
 . $SUN_WORK_DIR/shell/common.sh
 
 TIME_SERVER_API='http://api.timezonedb.com/v2.1/list-time-zone'
-USER_KEY='H8Z3JL71PT3K' #limitation, one query per second
+USER_KEY='your-api-key' #limitation, one query per second
 TIME_ZONE='Asia/Shanghai'
 
 extract_num() {
