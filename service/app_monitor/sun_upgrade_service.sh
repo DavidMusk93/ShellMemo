@@ -39,7 +39,7 @@ on_start() {
   readonly LOOP_INTERVAL=`expr 30 \* 60 + $PRIORITY`
   check_host && HOST_DEBUG=true || HOST_DEBUG=false
 
-  readonly upgrade_server=http://114.67.71.227:8888
+  readonly upgrade_server=your-static-file-server-address
   readonly remote_exe=$upgrade_server/$PROJECT
   readonly remote_exe_md5=$remote_exe.md5
 
