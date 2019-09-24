@@ -180,7 +180,10 @@ _type_check() {
 }
 
 sizeof() {
-  check_file $1 || echo 0 && return
+  if ! check_file $1; then
+    echo 0
+    return
+  fi
   echo `stat --printf=%s $1`
 }
 
