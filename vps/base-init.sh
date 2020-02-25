@@ -18,6 +18,7 @@ ModifyHostname()
 ModifySshPort()
 {
   SetSpaceValue /etc/ssh/sshd_config Port $1
+  systemctl restart ssh
 }
 
 OnInit()
