@@ -22,6 +22,7 @@ main()
 {
   [ $1 ] && [ -d $1 ] || exit 1
   local p=`basename $1`
+  [ $2 ] && p=$2
   cd $1
   Ln `find . -name "*.vdex"`
   Conveter $p && Pack $p
