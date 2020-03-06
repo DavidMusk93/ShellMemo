@@ -10,7 +10,7 @@ OnInit()
   MAIN_PACKAGE_NAME=com.example.xposedtest
   TEMP=/data/local/tmp
   TAG='not exist'
-  DEFAULT_APK='/sdcard/app-debug.apk'
+  DEFAULT_APK=$TEMP/app-debug.apk
 }
 
 LogInfo()
@@ -32,11 +32,12 @@ OnMainAppAlive()
 OnMainAppDead()
 {
   LogInfo $1 is dead, launch it directly.
-  ExplicitExec am start -n $1/.MainActivity | grep -q $TAG && OnAppNotExist
+  ExplicitExec am start -n $1/.MainActivity 2>&1 | grep -q "$TAG" && OnAppNotExist
 }
 
 OnAppNotExist()
 {
+  LogInfo 'MainApp is not installed, try installing...'
   if [ -f $DEFAULT_APK ]; then
     ExplicitExec pm install -r -t $DEFAULT_APK
     return $?
