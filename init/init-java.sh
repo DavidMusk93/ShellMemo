@@ -28,7 +28,7 @@ ParseDownloadUrl()
   egrep -o $PATTERN `DownloadFile $1` | head -n 1
 }
 
-RetrivePathRFromTar()
+RetrivePathFromTar()
 {
   local p=`tar -tf $1 | head -n 1`
   echo `basename $p`
@@ -41,7 +41,7 @@ DownloadAndInstall()
   AssertEmpty $url
   f=`DownloadFile $url`
   AssertEmpty $f
-  p=`RetrivePathRFromTar $f`
+  p=`RetrivePathFromTar $f`
   test -d $TARGET || sudo mkdir -p $TARGET
   test -d $TARGET/$p || sudo tar zxvf $f -C $TARGET
   (cd $TARGET && sudo ln -sfn `basename $TARGET`/$p ../jdk)
