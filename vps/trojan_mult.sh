@@ -13,7 +13,7 @@ function red(){
     echo -e "\033[31m\033[01m$1\033[0m"
 }
 function version_lt(){
-    test "$(echo "$@" | tr " " "\n" | sort -rV | head -n 1)" != "$1"; 
+    test "$(echo "$@" | tr " " "\n" | sort -rV | head -n 1)" != "$1";
 }
 #copy from 秋水逸冰 ss scripts
 if [[ -f /etc/redhat-release ]]; then
@@ -71,6 +71,7 @@ http {
         root /usr/share/nginx/html;
         index index.php index.html index.htm;
     }
+    include /etc/nginx/sites-enabled/*;
 }
 EOF
 	#设置伪装站
@@ -100,8 +101,8 @@ EOF
 	wget -P /usr/src/trojan-temp https://github.com/trojan-gfw/trojan/releases/download/v${latest_version}/trojan-${latest_version}-win.zip >/dev/null 2>&1
 	unzip trojan-cli.zip >/dev/null 2>&1
 	unzip /usr/src/trojan-temp/trojan-${latest_version}-win.zip -d /usr/src/trojan-temp/ >/dev/null 2>&1
-	mv -f /usr/src/trojan-temp/trojan/trojan.exe /usr/src/trojan-cli/ 
-	trojan_passwd=$(cat /dev/urandom | head -1 | md5sum | head -c 8)
+	mv -f /usr/src/trojan-temp/trojan/trojan.exe /usr/src/trojan-cli/
+  [ $trojan_passwd ] || trojan_passwd=$(cat /dev/urandom | head -1 | md5sum | head -c 8)
 	cat > /usr/src/trojan-cli/config.json <<-EOF
 {
     "run_type": "client",
@@ -185,21 +186,21 @@ EOF
 	mkdir /usr/share/nginx/html/${trojan_path}
 	mv /usr/src/trojan-cli/trojan-cli.zip /usr/share/nginx/html/${trojan_path}/
 	#增加启动脚本
-	
+
 cat > ${systempwd}trojan.service <<-EOF
-[Unit]  
-Description=trojan  
-After=network.target  
-   
-[Service]  
-Type=simple  
+[Unit]
+Description=trojan
+After=network.target
+
+[Service]
+Type=simple
 PIDFile=/usr/src/trojan/trojan/trojan.pid
-ExecStart=/usr/src/trojan/trojan -c "/usr/src/trojan/server.conf"  
+ExecStart=/usr/src/trojan/trojan -c "/usr/src/trojan/server.conf" -l "/tmp/trojan.log"
 ExecReload=/bin/kill -HUP \$MAINPID
 Restart=on-failure
 RestartSec=1s
-   
-[Install]  
+
+[Install]
 WantedBy=multi-user.target
 EOF
 
@@ -209,7 +210,7 @@ EOF
 	~/.acme.sh/acme.sh  --installcert  -d  $your_domain   \
         --key-file   /usr/src/trojan-cert/private.key \
         --fullchain-file  /usr/src/trojan-cert/fullchain.cer \
-	--reloadcmd  "systemctl restart trojan"	
+	--reloadcmd  "systemctl restart trojan"
 	green "======================================================================"
 	green "Trojan已安装完成，请使用以下链接下载trojan客户端，此客户端已配置好所有参数"
 	green "1、复制下面的链接，在浏览器打开，下载客户端，注意此下载链接将在1个小时后失效"
@@ -308,6 +309,7 @@ elif [ "$release" == "debian" ]; then
     apt-get update
 fi
 $systemPackage -y install  wget unzip zip curl tar >/dev/null 2>&1
+read -p "set trojan key: " trojan_passwd
 green "======================="
 blue "请输入绑定到本VPS的域名"
 green "======================="
@@ -320,7 +322,7 @@ if [ $real_addr == $local_addr ] ; then
 	green "=========================================="
 	sleep 1s
         install_trojan
-	
+
 else
         red "===================================="
 	red "域名解析地址与本VPS IP地址不一致"
@@ -376,7 +378,7 @@ else
     red "域名解析地址与本VPS IP地址不一致"
     red "本次安装失败，请确保域名解析正常"
     red "================================"
-fi	
+fi
 }
 
 function remove_trojan(){
@@ -421,8 +423,6 @@ function update_trojan(){
     else
         green "当前版本$curr_version,最新版本$latest_version,无需升级"
     fi
-   
-   
 }
 
 start_menu(){
@@ -450,13 +450,13 @@ start_menu(){
     preinstall_check
     ;;
     2)
-    remove_trojan 
+    remove_trojan
     ;;
     3)
-    update_trojan 
+    update_trojan
     ;;
     4)
-    repair_cert 
+    repair_cert
     ;;
     0)
     exit 1
