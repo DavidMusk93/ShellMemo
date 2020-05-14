@@ -14,5 +14,5 @@ function docker::nsenter() {
   export LC_ALL=C
   local pid=$1
   [ ${#pid} -eq 12 ] && pid=`docker::pidof $1`
-  sudo nsenter -m -u -n -p -i -t $1 /bin/bash
+  sudo nsenter -m -u -n -p -i -t $pid /bin/bash
 }
