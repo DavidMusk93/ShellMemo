@@ -22,6 +22,7 @@ LOCAL=''
 LOCAL_INSTALL=''
 DIST_SRC='github'
 ERROR_IF_UPTODATE=''
+VPS='proxy'
 
 CUR_VER=""
 NEW_VER=""
@@ -170,6 +171,18 @@ zipRoot() {
     '
 }
 
+CheckCmd()
+{
+  return $?
+}
+
+DownloadByVps()
+{
+  local filename=`basename $1`
+  ssh $VPS "curl -L $1 -o /tmp/$filename"
+  scp $VPS:/tmp/$filename $ZIPFILE
+}
+
 downloadV2Ray(){
     rm -rf /tmp/v2ray
     mkdir -p /tmp/v2ray
@@ -179,7 +192,8 @@ downloadV2Ray(){
         DOWNLOAD_LINK="https://github.com/v2ray/v2ray-core/releases/download/${NEW_VER}/v2ray-linux-${VDIS}.zip"
     fi
     colorEcho ${BLUE} "Downloading V2Ray: ${DOWNLOAD_LINK}"
-    curl ${PROXY} -L -H "Cache-Control: no-cache" -o ${ZIPFILE} ${DOWNLOAD_LINK}
+    timeout 20s curl ${PROXY} -L -H "Cache-Control: no-cache" -o ${ZIPFILE} ${DOWNLOAD_LINK}
+    CheckCmd || DownloadByVps $DOWNLOAD_LINK
     if [ $? != 0 ];then
         colorEcho ${RED} "Failed to download! Please check your network or try again."
         return 3
