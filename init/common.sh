@@ -45,7 +45,6 @@ fetch_pkg()
 non_empty()
 {
   [ "$*" ]
-  return $?
 }
 
 check_rc()
