@@ -23,11 +23,12 @@ KillMode=process
 [Install]
 WantedBy=multi-user.target
 EOF
-sudo mv $1 $SYSTEMD_DIR
+sudo cp $1 $SYSTEMD_DIR
 }
 
 CreateTimer()
 {
+  sudo systemctl disable $1 &>/dev/null
   cat <<EOF >$1 &&
 [Unit]
 Description=Check Remote Port
@@ -35,13 +36,14 @@ Description=Check Remote Port
 [Timer]
 OnBootSec=1min
 OnUnitActiveSec=${2}min
-RandomizedDelaySec=5min
-Persistent=true
+RandomizedDelaySec=2min
+#Persistent=true
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=timers.target
 EOF
-sudo mv $1 $SYSTEMD_DIR
+sudo cp $1 $SYSTEMD_DIR &&
+  sudo systemctl enable $1
 #(test -f $SYSTEMD_DIR/$1 || { cd $SYSTEMD_DIR; sudo ln -sfn $__PWD/$1; })
 }
 

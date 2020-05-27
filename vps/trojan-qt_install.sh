@@ -77,11 +77,10 @@ function main() {
   local repo=`dirname $RELEASES_LINK`
   local project=`basename $repo`
   check_git $APP_DIR/$project || git clone $repo.git $APP_DIR/$project
-  download_app \
+  check_cmd && download_app \
     $DOWNLOAD_LINK_PREFIX \
     $RELEASES_LINK \
     $APP_NAME \
-    $APP_DIR
-  check_cmd && on_success
+    $APP_DIR && on_success
 }
 main
