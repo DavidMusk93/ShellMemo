@@ -66,7 +66,9 @@ X-KDE-autostart-after=panel
 EOF
 
 function on_success() {
-  (cd ~/.config/autostart         && ln -sfn $WORK_DIR/$TROJAN_DESKTOP)
+  local AUTOSTART_DIR=~/.config/autostart
+  test -d $AUTOSTART_DIR || mkdir $AUTOSTART_DIR -m 700
+  (cd $AUTOSTART_DIR              && ln -sfn $WORK_DIR/$TROJAN_DESKTOP)
   (cd ~/.local/share/applications && ln -sfn $WORK_DIR/$TROJAN_DESKTOP)
   chmod +x $APP_DIR/$APP_NAME
 }
