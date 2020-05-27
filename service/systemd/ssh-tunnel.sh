@@ -51,7 +51,7 @@ OnInit()
   __PWD=`__pwd`
   SELF=`basename $0`
   NAME=${SELF%.*}
-  REMOTE_HOST=rn
+  REMOTE_HOST=tx
   REMOTE_PORT=7788
   LOCAL_PORT=`RetrieveLocalPort`
   [ $LOCAL_PORT ] || LOCAL_PORT=22
