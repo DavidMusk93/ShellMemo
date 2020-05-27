@@ -179,8 +179,10 @@ CheckCmd()
 DownloadByVps()
 {
   local filename=`basename $1`
-  ssh $VPS "curl -L $1 -o /tmp/$filename"
-  scp $VPS:/tmp/$filename $ZIPFILE
+  local user=${__USER:-sun}
+  runuser -u $user -- ssh $VPS "test -f /tmp/$filename || curl -L $1 -o /tmp/$filename"
+  runuser -u $user -- scp $VPS:/tmp/$filename .
+  mv $filename $ZIPFILE
 }
 
 downloadV2Ray(){

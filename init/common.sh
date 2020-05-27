@@ -11,6 +11,7 @@ _init_color_front()
   yellowf='33m'; bluef='34m'
   purplrf='35m'; cyanf='36m'
 }
+_init_color_front
 
 init_log_context()
 {
@@ -26,16 +27,19 @@ log::info()
 {
   _color_echo $cyanf $@
 }
+LOG_INFO=log::info
 
 log::error()
 {
   _color_echo $redf $@
 }
+LOG_ERROR=log::error
 
 log::success()
 {
   _color_echo $greenf $@
 }
+LOG_SUCCESS=log::success
 
 fetch_pkg()
 {
@@ -51,6 +55,7 @@ check_rc()
 {
   return $?
 }
+CheckCmd=check_rc
 
 truncate_zero()
 {
