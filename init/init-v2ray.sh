@@ -15,7 +15,7 @@ OnInit()
 
 InstallV2ray()
 {
-  test -f $V2RAY_CONFIG && sudo bash ./install-v2ray.sh
+  test -f $V2RAY_CONFIG || sudo bash ./install-v2ray.sh
   if ! $CheckCmd; then
     $LOG_ERROR "Fail to install V2ray"
     return 1
