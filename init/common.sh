@@ -1,5 +1,7 @@
 #!/bin/bash
 
+TMP=/tmp
+
 _init_color_front()
 {
   #redf=`tput setaf 1`
@@ -71,3 +73,18 @@ append_text()
     echo "$text" >> $f
   done
 }
+
+CacheHtml()
+{
+  local hash="`echo $PAGE | md5sum`"
+  hash=${hash%% *}
+  local html=$TMP/$hash.html
+  [ -f $html ] || { curl $PAGE -o $html || return 1; }
+  echo $html
+}
+
+RetrieveUrl()
+{
+  cat $1 | egrep -o $2 | head -n 1
+}
+
