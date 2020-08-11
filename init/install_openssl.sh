@@ -14,7 +14,7 @@ DownloadThenUnpack()
   URL="`RetrieveUrl $html $PATTERN`"
   [ "$URL" ] || { URL="`RetrieveUrl $html ${PATTERN:13}`"; [ "$URL" ] && URL=$PAGE$URL || return 1; }
   local f=`basename $URL`
-  { [ -f $f ] && echo ${f%$SUFFIX} && return 0; } || { curl -OL $URL && tar -zxvf $f; }
+  { [ -f $f ] && echo ${f%$SUFFIX} && return 0; } || { curl -OL $URL && tar -zxvf $f &>$f.log; }
   echo ${f%$SUFFIX}
 }
 
