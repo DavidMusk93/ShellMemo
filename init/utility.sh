@@ -11,7 +11,8 @@ SetProxy()
   case ${1:-'enable'} in
     0|enable)
       case ${2:-'v2ray'} in
-        v2ray)  export http_proxy=localhost:8123;;
+        v2ray-linux) export http_proxy=localhost:8123;;
+        v2ray-win) export http_proxy=localhost:2081;;
         trojan) export http_proxy=localhost:2091;;
         *)      return 1;;
       esac
