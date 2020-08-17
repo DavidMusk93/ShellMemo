@@ -24,3 +24,13 @@ SetProxy()
       ;;
   esac
 }
+
+AppendPath()
+{
+  if [ -d $1 ]; then
+    case $PATH in
+      *$1*) return 0;;
+    esac
+    export PATH=$1:$PATH
+  fi
+}

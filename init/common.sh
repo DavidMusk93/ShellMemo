@@ -1,6 +1,7 @@
 #!/bin/bash
 
 TMP=/tmp
+${RUN:=true}
 
 _init_color_front()
 {
@@ -88,3 +89,8 @@ RetrieveUrl()
   cat $1 | egrep -o $2 | head -n 1
 }
 
+__pwd()
+{
+  (cd `dirname $0` && pwd)
+}
+_PWD=`__pwd`

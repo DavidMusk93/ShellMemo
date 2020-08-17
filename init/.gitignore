@@ -2,3 +2,4 @@
 cmake-*
 openssl-*
 *.log
+cmake
