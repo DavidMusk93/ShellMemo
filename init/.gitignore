@@ -3,3 +3,4 @@ cmake-*
 openssl-*
 *.log
 cmake
+/.conf
