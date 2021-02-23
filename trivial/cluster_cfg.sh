@@ -60,25 +60,18 @@ sun::base_cfg() {
 
 sun::control_cm() {
     SERVER=cloudera-scm-server
-    __service() {
-        case $1 in
-        start)
-            service $SERVER-db $1
-            service $SERVER $1
-            ;;
-        stop)
-            service $SERVER $1
-            service $SERVER-db $1
-            ;;
-        restart)
-            __service stop
-            __service start
-            ;;
-        esac
-    }
     case $1 in
-    start | stop | restart)
-        __service $1
+    0 | start)
+        service $SERVER-db $1
+        service $SERVER $1
+        ;;
+    1 | stop)
+        service $SERVER $1
+        service $SERVER-db $1
+        ;;
+    2 | restart)
+        sun::control_cm 1
+        sun::control_cm 0
         ;;
     esac
 }
