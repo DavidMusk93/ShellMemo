@@ -5,7 +5,10 @@ sun::on_begin() {
 }
 
 sun::nfs_copy() {
-    FROM=/opt/nfs/hadoopSW/cloudera
+    NFSSERVER=10.10.10.5
+    NFSREMOTESRC=/opt/home
+    NFSLOCALDST=/opt/nfs
+    FROM=$NFSLOCALDST/hadoopSW/cloudera
     TO=$WORKDIR
     VERSION=5.16.2
     __on_success() {
@@ -16,11 +19,15 @@ sun::nfs_copy() {
         #avoid deleting by UNINSTALLER
         TO=.$RANDOM.cm.$VERSION
         mkdir -p $TO
+        mkdir -p $NFSLOCALDST
+        mount $NFSSERVER:$NFSREMOTESRC $NFSLOCALDST || exit 0
     }
     __on_end() {
+        umount $NFSLOCALDST
         ln -sfn $TO $REALTO
     }
     __copy() {
+        set -e
         rsync --progress -avr $FROM/$1 $TO
         (
             set -e
@@ -33,8 +40,8 @@ sun::nfs_copy() {
         )
     }
     __on_begin
-    #__copy "dependencies/centos/x86_64/7"
-    #__copy "cdh5/parcel/$VERSION"
+    __copy "dependencies/centos/x86_64/7"
+    __copy "cdh5/parcel/$VERSION"
     __copy "cm5/centos/x86_64/7/$VERSION"
     __on_end
 }
@@ -54,8 +61,10 @@ sun::base_cfg() {
         ntp \
         createrepo \
         psmisc \
-        pdsh
+        pdsh \
+        nfs-utils
     __time_cfg
+    [ $1 ] && hostnamectl set-hostname $1
 }
 
 sun::control_cm() {
@@ -82,7 +91,7 @@ sun::install_cm() {
     #IP=$(hostname -I)
     #IP=${IP// /}
     IP=$MASTERIP
-    PORT=8910
+    PORT=80
     (
         cat >/etc/yum.repos.d/local.repo <<EOF
 [local]
@@ -104,7 +113,7 @@ main() {
     sun::on_begin
     case $1 in
     0 | copy) sun::nfs_copy ;;
-    1 | cfg) sun::base_cfg ;;
+    1 | cfg) sun::base_cfg $2 ;;
     2 | install) sun::install_cm ;;
     3 | control) sun::control_cm $2 ;;
     esac
