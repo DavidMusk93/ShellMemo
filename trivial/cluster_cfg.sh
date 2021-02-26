@@ -54,9 +54,19 @@ sun::base_cfg() {
         ntpdate pool.ntp.org
         service ntpd start
     }
+    __disable_selinux() {
+        __set_value() {
+            sed -i 's/^'$2'=.*/'$2=$3'/' $1
+        }
+        #deprecated
+        __set_value /etc/sysconfig/selinux SELINUX disabled
+        __set_value /etc/selinux/config SELINUX disabled
+        sestatus
+        setenforce 0
+    }
     systemctl stop firewalld.service
     systemctl disable firewalld.service
-    setenforce 0
+    __disable_selinux
     yum install -y \
         ntp \
         createrepo \

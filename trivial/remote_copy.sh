@@ -8,7 +8,7 @@
 LOCAL_MXOSRVR=./core/sqf/export/bin64d/mxosrvr
 REMOTE_MXOSRVR=/opt/trafodion/esgyndb/export/bin64/mxosrvr
 
-SOURCEDIR=/home/public/Documents/esgyndb.mxosrvr
+SOURCEDIR=/home/public/Documents/esgyndb.WORKING
 CURRENTDIR=$(pwd)
 
 main() {
@@ -21,9 +21,10 @@ main() {
         done_pre_op=true
         case ${_1:-0} in
         copy | 0)
+            timeout 2s ssh $SERVER ls || ssh-copy-id $SERVER
             ssh $SERVER "dcsstop"
             # make sure all mxosrvrs exit
-            sleep 5
+            sleep 10
             ;;
         check | 1)
             md5sum $LOCAL_MXOSRVR
@@ -38,9 +39,11 @@ main() {
     __remote_copy() {
         scp $2 $1:$3
     }
+    SERVERPREFIX=10.13.30
+    SERVERHOSTS="120 116 119"
     cd $SOURCEDIR
-    for i in {7..10}; do
-        SERVER="trafodion@10.10.10.$i"
+    for i in $SERVERHOSTS; do
+        SERVER="trafodion@$SERVERPREFIX.$i"
         __pre_op
         case ${1:-0} in
         copy | 0)
