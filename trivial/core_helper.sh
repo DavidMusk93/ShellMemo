@@ -87,13 +87,32 @@ function sun::mxo::list_listener() {
 }
 
 function sun::mxo::peek_listener_status() {
+    __dump_stack() {
+        local line FINISH
+        FINISH=false
+        while read -r line; do
+            case $line in
+            Thread*)
+                $FINISH && break
+                if echo $line | grep -q $2; then
+                    echo $line >&$3
+                    FINISH=true
+                fi
+                ;;
+            \#*) $FINISH && echo $line >&$3 ;;
+            esac
+        done < <(pstack $1)
+    }
     __dump_status() {
+        set +x
         local fd
         exec {fd}>$STATUSMAP.$1
         echo "@@@@@@ $1->$2" >&$fd
-        pstack $1 | grep -A10 -m1 "$THREADTAG$2" >&$fd
+        #pstack $1 | grep -A10 -m1 "$THREADTAG$2" >&$fd
+        __dump_stack $1 $2 $fd
         echo "@@@@@@" >&$fd
         echo >&$fd
+        set -x
     }
     while
         read -d$PIDDELIM main
