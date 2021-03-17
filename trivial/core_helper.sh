@@ -11,6 +11,9 @@ function sun::initialize() {
     PIDMAP=$TMPDIR/mxo.listener.pid.map
     STATUSMAP=$TMPDIR/mxo.listener.status.map
     SCRIPTDIR=$( (cd $(dirname $0) && pwd))
+    CLUSTER='c[1-3]'
+    REMOTESCRIPTDIR='/opt'
+    REMOTEHELPER=$SCRIPTDIR/remote_helper.sh
 }
 
 function sun::core::dump_mxosrvr() {
@@ -68,12 +71,14 @@ function sun::mxo::list_listener_impl() {
     __has_listener_tag() {
         echo "$@" | grep -q $LISTENERTAG
     }
+    set +x
     while read -r line; do
         case $line in
         Thread*) __retrieve_sub_pid $line ;;
         \#*) __has_listener_tag $line && break ;;
         esac
     done < <(pstack $1)
+    set -x
     echo "$1$PIDDELIM$pid" >$PIDMAP.$1
 }
 
@@ -84,6 +89,7 @@ function sun::mxo::list_listener() {
     wait
     cat $PIDMAP.* >$PIDMAP
     rm -f $PIDMAP.*
+    cat $PIDMAP
 }
 
 function sun::mxo::peek_listener_status() {
@@ -135,12 +141,19 @@ function main() {
     1 | check) sun::core::check_client_status ;;
     2 | network) sun::trace::network $2 $3 ;;
     3 | tuning) sun::network_tuning ;;
-    4 | map) sun::mxo::list_listener ;;
+    4 | list) sun::mxo::list_listener ;;
     5 | status) sun::mxo::peek_listener_status ;;
     pstatus)
-        source $SCRIPTDIR/remote_helper.sh
-        CLUSTER='c[1-3]'
-        $PDSH -w $CLUSTER $SSHCMD bash /opt/$(basename $0) status
+        source $REMOTEHELPER
+        sun::remote_bash $CLUSTER $REMOTESCRIPTDIR/$SCRIPTSELF status
+        ;;
+    plist)
+        source $REMOTEHELPER
+        sun::remote_bash $CLUSTER $REMOTESCRIPTDIR/$SCRIPTSELF list
+        ;;
+    pcopy)
+        source $REMOTEHELPER
+        $PDCP -w $CLUSTER -x $HOSTNAME $SCRIPTDIR/$SCRIPTSELF $REMOTESCRIPTDIR/$SCRIPTSELF
         ;;
     esac
 }
