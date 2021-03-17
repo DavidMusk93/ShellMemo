@@ -15,6 +15,8 @@ sun::forwarder_install() {
     cd monitor/cmake-build-debug
     rm -rf * && cmake .. && make
     nohup ./forwarder &
+    #robust last background command
+    sleep 1
 }
 
 sun::initialize() {
@@ -34,19 +36,25 @@ main() {
     ACTION=$1
     shift
     case $ACTION in
-    dispatch) $PDCP -w $CLUSTER -x $HOSTNAME $0 $TARGETDIR ;;
-    0 | cleanup) $PDSH -w $CLUSTER $SSHCMD bash $EXECUTOR 1 ;;
-    1 | cleanup-impl) sun::forwarder_cleanup ;;
-    2 | install)
+    dispatch)
+        $PDCP -w $CLUSTER -x $HOSTNAME $0 $TARGETDIR
+        $PDSH -w $CLUSTER $SSHCMD bash $EXECUTOR dispatch-postaction
+        ;;
+    dispatch-postaction) mkdir -p $MONITORDIR ;;
+    0 | cleanup) $PDSH -w $CLUSTER $SSHCMD bash $EXECUTOR cleanup-impl ;;
+    1 | install)
         (
             cd ~/Documents/github/c-playground/socket
             rm -f $MONITORTAR
             tar -zcvf $MONITORTAR ./monitor
             $PDCP -w $CLUSTER -x $HOSTNAME $MONITORTAR $MONITORDIR
-            $PDSH -w $CLUSTER $SSHCMD bash $EXECUTOR 3
+            $PDSH -w $CLUSTER $SSHCMD bash $EXECUTOR install-impl
         )
         ;;
-    3 | install-impl) sun::forwarder_install ;;
+    cleanup-impl) sun::forwarder_cleanup ;;
+    install-impl) sun::forwarder_install ;;
+    2 | kill) $PDSH -w $CLUSTER $SSHCMD bash $EXECUTOR kill-impl ;;
+    kill-impl) pkill forwarder ;;
     esac
 }
 main $*

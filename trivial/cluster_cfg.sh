@@ -47,6 +47,91 @@ sun::nfs_copy() {
 }
 
 sun::base_cfg() {
+    __yum_install() {
+        yum install -y epel-release
+        yum update -y
+        yum install -y \
+            libcgroup-tools \
+            net-tools \
+            nc \
+            vim \
+            ctags \
+            git \
+            curl \
+            wget \
+            zip \
+            tree \
+            redhat-lsb-core \
+            gcc-c++ \
+            golang \
+            java-1.8.0-openjdk* \
+            bison \
+            byacc \
+            flex \
+            zeromq3-devel \
+            openssl-devel \
+            boost-devel \
+            libevent-devel \
+            log4cxx-devel \
+            openldap-devel \
+            libsqlite3x-devel \
+            ncurses-devel \
+            readline-devel \
+            snappy-devel \
+            fuse-devel \
+            libuuid-devel \
+            libcurl-devel \
+            lzo-devel \
+            unixODBC-devel \
+            protobuf-devel \
+            perl-Data-Dumper \
+            perl-DBI \
+            perl-DBD-SQLite \
+            strace \
+            gdb \
+            lsof \
+            ntp \
+            createrepo \
+            psmisc \
+            pdsh \
+            nfs-utils \
+            cmake
+    }
+
+    __sshd_cfg() {
+        SSHDCFG=/etc/ssh/sshd_config
+        USEDNS='UseDNS'
+        grep -q "$USEDNS yes" $SSHDCFG && {
+            sed -i "s/#$USEDNS yes/$USEDNS no/" $SSHDCFG
+            systemctl restart sshd
+        }
+    }
+
+    __ip() {
+        IPPREFIX='10.13.30'
+        C1=$IPPREFIX.120
+        C2=$IPPREFIX.116
+        C3=$IPPREFIX.119
+        echo $(hostname -I)
+    }
+
+    __hostname_cfg() {
+        TARGETHOSTNAME=$1
+        [ $TARGETHOSTNAME ] || {
+            MYIP=$(__ip)
+            if [ $MYIP = $C1 ]; then
+                TARGETHOSTNAME=c1
+            elif [ $MYIP = $C2 ]; then
+                TARGETHOSTNAME=c2
+            elif [ $MYIP = $C3 ]; then
+                TARGETHOSTNAME=c3
+            else
+                TARGETHOSTNAME=UNKNOWN
+            fi
+        }
+        hostnamectl set-hostname $TARGETHOSTNAME
+    }
+
     __time_cfg() {
         timedatectl set-local-rtc 1
         timedatectl set-timezone Asia/Shanghai
@@ -54,6 +139,7 @@ sun::base_cfg() {
         ntpdate pool.ntp.org
         service ntpd start
     }
+
     __disable_selinux() {
         __set_value() {
             sed -i 's/^'$2'=.*/'$2=$3'/' $1
@@ -64,29 +150,30 @@ sun::base_cfg() {
         sestatus
         setenforce 0
     }
-    systemctl stop firewalld.service
-    systemctl disable firewalld.service
+
+    __disable_firewall() {
+        systemctl stop firewalld.service
+        systemctl disable firewalld.service
+    }
+    __yum_install
+    __disable_firewall
     __disable_selinux
-    yum install -y \
-        ntp \
-        createrepo \
-        psmisc \
-        pdsh \
-        nfs-utils
     __time_cfg
-    [ $1 ] && hostnamectl set-hostname $1
+    __sshd_cfg
+    __hostname_cfg $*
 }
 
 sun::control_cm() {
     SERVER=cloudera-scm-server
     case $1 in
     0 | start)
-        service $SERVER-db $1
-        service $SERVER $1
+        sun::sync_hosts
+        service $SERVER-db start
+        service $SERVER start
         ;;
     1 | stop)
-        service $SERVER $1
-        service $SERVER-db $1
+        service $SERVER stop
+        service $SERVER-db stop
         ;;
     2 | restart)
         sun::control_cm 1
@@ -116,6 +203,15 @@ EOF
             $CM-daemons
         #sun::control_cm start
     )
+}
+
+sun::sync_hosts() {
+    [ $HOSTNAME = c1 ] && {
+        HOSTS=/etc/hosts
+        for i in c2 c3; do
+            rsync --progress -avr $HOSTS $i:$HOSTS
+        done
+    }
 }
 
 main() {
