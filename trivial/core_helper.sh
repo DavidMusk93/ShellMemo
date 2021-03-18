@@ -1,6 +1,16 @@
 #!/bin/bash
 
+function sun::const::code() {
+    NOTFOUND=1
+}
+
+function sun::const::string() {
+    BR="@@@@@@"
+}
+
 function sun::initialize() {
+    sun::const::code
+    sun::const::string
     TMPDIR='/tmp'
     DEBUGFILE='debug-pnode.txt'
     MXOSRVR=mxosrvr
@@ -14,6 +24,10 @@ function sun::initialize() {
     CLUSTER='c[1-3]'
     REMOTESCRIPTDIR='/opt'
     REMOTEHELPER=$SCRIPTDIR/remote_helper.sh
+}
+
+function sun::safe::cd() {
+    test -d $1 && cd $1 || exit $NOTFOUND
 }
 
 function sun::core::dump_mxosrvr() {
@@ -36,11 +50,11 @@ eof
     EXE=$(find /opt/trafodion -name $MXOSRVR)
     [ $EXE ] && {
         for i in core.*; do
-            echo "@@@@@@ $i"
+            echo "$BR $i"
             gdb -q $EXE $i <<eof
 source -v $DEBUGFILE
 eof
-            echo "@@@@@@"
+            echo $BR
         done
     }
 }
@@ -48,7 +62,7 @@ eof
 function sun::trace::network() {
     [ $1 ] && kill -0 $1 2>/dev/null && {
         LOGFILE=${2:-trace.network}
-        strace -f -ttt -s 256 -p $1 -e trace=%network 2>&1 | tree $LOGFILE
+        strace -f -ttt -s 256 -p $1 -e trace=%network 2>&1 | tee $LOGFILE
     }
 }
 
@@ -113,10 +127,10 @@ function sun::mxo::peek_listener_status() {
         set +x
         local fd
         exec {fd}>$STATUSMAP.$1
-        echo "@@@@@@ $1->$2" >&$fd
+        echo "$BR $1>$2" >&$fd
         #pstack $1 | grep -A10 -m1 "$THREADTAG$2" >&$fd
         __dump_stack $1 $2 $fd
-        echo "@@@@@@" >&$fd
+        echo $BR >&$fd
         echo >&$fd
         set -x
     }
@@ -135,7 +149,7 @@ function sun::mxo::peek_listener_status() {
 function main() {
     set -x
     sun::initialize
-    cd $TMPDIR
+    sun::safe::cd $TMPDIR
     case $1 in
     0 | dump) sun::core::dump_mxosrvr ;;
     1 | check) sun::core::check_client_status ;;
