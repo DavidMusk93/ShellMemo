@@ -95,7 +95,8 @@ sun::base_cfg() {
             psmisc \
             pdsh \
             nfs-utils \
-            cmake
+            cmake \
+            ant
     }
 
     __sshd_cfg() {

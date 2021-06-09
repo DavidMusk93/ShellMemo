@@ -1,0 +1,18 @@
+global count_jiffies,count_ms
+
+# @ref https://man7.org/linux/man-pages/man7/time.7.html
+# trigger every 100 jiffies? YES
+probe timer.jiffies(100){
+  count_jiffies++
+}
+
+probe timer.ms(100){
+  count_ms++
+}
+
+probe timer.ms(12345){
+  # jiffies per second
+  hz=(1000*count_jiffies)/count_ms
+  printf("jiffies:ms ratio %d:%d => CONFIG_HZ=%d\n",count_jiffies,count_ms,hz)
+  exit()
+}

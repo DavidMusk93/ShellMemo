@@ -21,7 +21,7 @@ function sun::initialize() {
     PIDMAP=$TMPDIR/mxo.listener.pid.map
     STATUSMAP=$TMPDIR/mxo.listener.status.map
     SCRIPTDIR=$( (cd $(dirname $0) && pwd))
-    CLUSTER='c[1-3]'
+    CLUSTER='t11,t14,t21'
     REMOTESCRIPTDIR='/opt'
     REMOTEHELPER=$SCRIPTDIR/remote_helper.sh
 }

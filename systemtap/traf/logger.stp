@@ -1,0 +1,3 @@
+probe process("/root/esgyndb/core/sqf/export/bin64d/mxosrvr").function("CommonLogger::log1@/root/esgyndb/core/sqf/commonLogger/CommonLogger.cpp:125"){
+    printf("%d | %s | %s\n",pid(),ppfunc(),$$parms$)
+}

@@ -1,0 +1,7 @@
+probe process("/root/esgyndb/core/sqf/export/lib64d/libexecutor.so").function("*@OrcFileVectorWriter.cpp").call{
+    printf("%d,%s,%s\n",pid(),ppfunc(),$$parms)
+}
+
+probe process("/root/esgyndb/core/sqf/export/lib64d/libexecutor.so").function("*@OrcFileVectorWriter.cpp").return{
+    printf("%d,%s,%s\n",pid(),ppfunc(),$$return)
+}

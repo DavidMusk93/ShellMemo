@@ -1,0 +1,21 @@
+# probe perf.hw.instructions // every 100m instructions
+# probe timer.profile // every jiffy
+
+global cycles,flags
+
+probe begin{
+    printf("measures the speed of the get_cycles() counter on each processor\n")
+    flags[cpu()]=0
+}
+
+probe timer.s(1){
+    i=cpu()
+    if(flags[i]==0){
+        cycles[i]=get_cycles()
+        flags[i]=1
+    }else{
+        printf("%d#hz:%d\n",i,get_cycles()-cycles[i])
+        flags[i]=0
+    }
+}
+

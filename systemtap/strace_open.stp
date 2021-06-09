@@ -1,0 +1,7 @@
+probe syscall.open{
+  printf("[%d] %s open(%s)\n",pid(),execname(),argstr)
+}
+
+probe timer.ms(10000){
+  exit()
+}

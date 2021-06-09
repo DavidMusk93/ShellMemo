@@ -1,0 +1,11 @@
+#sqlci concerned
+# */root/esgyndb/core/sqf/export/lib64d/libsqlcilib.so
+# */root/esgyndb/core/sqf/export/bin64d/sqlci
+
+probe process("/root/esgyndb/core/sqf/export/lib64d/libsqlcilib.so").function("*@SqlCmd.cpp").call{
+    printf("%s -> %s\n", thread_indent(4), ppfunc());
+}
+
+probe process("/root/esgyndb/core/sqf/export/lib64d/libsqlcilib.so").function("*@SqlCmd.cpp").return{
+    printf("%s <- %s\n", thread_indent(-4), ppfunc());
+}

@@ -1,0 +1,41 @@
+#probe process("/root/esgyndb/core/sqf/export/bin64d/mxosrvr").function("odbc_SQLSrvr_Execute_param_res_").call{
+#    printf("%d,%s,%s\n",pid(),ppfunc(),$$parms)
+#}
+
+#@ref https://docs.huihoo.com/systemtap/sourceware.org/systemtap/SystemTap_Beginners_Guide.pdf
+# Pretty Printing Target Variables
+#  *$$parms
+#  *$$parms$
+#  *$$parms$$
+
+probe process("/root/esgyndb/core/sqf/export/lib64d/libmxocore.so").function("odbc_SQLSrvr_Close_ame_").call{
+    printf("%d,%s,%s\n\n",pid(),ppfunc(),$$parms$)
+}
+
+probe process("/root/esgyndb/core/sqf/export/lib64d/libmxocore.so").function("odbc_SQLSvc_Execute2_sme_").call{
+    printf("%d,%s,%s\n\n",pid(),ppfunc(),$$parms$)
+}
+
+probe process("/root/esgyndb/core/sqf/export/lib64d/libmxocore.so").function("EXECUTE2").call{
+    printf("%d,%s,%s\n\n",pid(),ppfunc(),$$parms$$)
+}
+
+probe process("/root/esgyndb/core/sqf/export/lib64d/libsqlcilib.so").function("do_execute").call{
+    printf("%d,%s,%s\n\n",pid(),ppfunc(),$$parms$)
+}
+
+probe process("/root/esgyndb/core/sqf/export/lib64d/libsqlcilib.so").function("doDescribeInput").call{
+    printf("%d,%s,%s\n\n",pid(),ppfunc(),$$parms$)
+}
+
+#probe process("/root/esgyndb/core/sqf/export/lib64d/libsqlcilib.so").function("convDoItMxcs").call{
+#    printf("%d,%s,%s\n\n",pid(),ppfunc(),$$parms$$)
+#}
+
+#probe process("/root/esgyndb/core/sqf/export/lib64d/libsqlcilib.so").function("*@ExpConvMxcs.cpp").return{
+#    printf("%d,%s,%s\n\n",pid(),ppfunc(),@entry($$parms->$$))
+#}
+
+probe process("/root/esgyndb/core/sqf/export/lib64d/libsqlcilib.so").function("*@ExpConvMxcs.cpp").call{
+    printf("%d,%s,%s\n\n",pid(),ppfunc(),$$parms$$)
+}

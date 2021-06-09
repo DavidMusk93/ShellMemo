@@ -1,0 +1,17 @@
+global a
+
+function show_top5(){
+  foreach(i in a- limit 5){
+    printf("%d,%d\n",i,a[i])
+  }
+  printf("GOTO NEXT ROUND...\n\n")
+}
+
+probe syscall.open{
+  a[pid()]++
+}
+
+probe timer.s(10){
+  show_top5()
+  delete a
+}
