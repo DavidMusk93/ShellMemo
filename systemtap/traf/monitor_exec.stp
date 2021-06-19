@@ -1,0 +1,23 @@
+//function dump_strings:string(p:long)%{
+//    char**args=(char**)STAP_ARG_p;
+//    char buf[500];
+//    char*p=&buf[0];
+//    char*e=buf+sizeof(buf);
+//    p+=sprintf(p,"args:");
+//    while(*args){
+//        if(p>=e){
+//            break;
+//        }
+//        p+=sprintf(p,"\"%s\",",*args);
+//        args++;
+//    }
+//    snprintf(STAP_RETVALUE,MAXSTRINGLEN,"%s",*args);
+//%}
+
+#probe process("bash").function("shell_execve").call{
+#    printf("%d | %s | %s\n",pid(),ppfunc(),__get_argv(pointer_arg(1),0))
+#}
+
+probe syscall.execve{
+    printf("[%d,%d],(%s),%s\n",ppid(),pid(),execname(),args);
+}
