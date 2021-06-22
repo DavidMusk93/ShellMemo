@@ -7,11 +7,16 @@ const() {
     SEDMODIFYFLAG='-i'
 }
 
+loadconfig() {
+    source compromise.sh
+    loadval HOST 1
+    loadval SUBHOST 1
+}
+
 initialize() {
     const
     datadir=$(whereami)/data
     image=kylemanna/openvpn
-    host=tx2.guohuasun.com
 }
 
 whereami() {
@@ -19,7 +24,7 @@ whereami() {
 }
 
 cid() {
-    docker ps | grep "$1" | awk 'print $1'
+    docker ps | grep "$1" | awk '{print $1}'
 }
 
 setval() {
@@ -64,7 +69,8 @@ main() {
         __run $image ovpn_getclient "$u" >"$u".ovpn
         ;;
     3 | bootstrap)
-        __run $image ovpn_genconfig -u udp://$host -c -d -D -z -s "10.10.10.0/24"
+        loadconfig
+        __run $image ovpn_genconfig -u udp://$host -c -d -D -z -s "$subhost"
         __run -it $image ovpn_initpki
         enable_forward /etc/sysctl.conf net.ipv4.ip_forward
         ;;

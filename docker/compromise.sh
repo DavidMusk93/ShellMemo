@@ -12,7 +12,7 @@ initialize_color() {
 logfatal() {
     initialize_color
     echo -e "$COLORRED$*$COLORRESET"
-    exit 255
+    exit 1
 }
 
 _yes() {
@@ -28,7 +28,7 @@ _yes() {
 #  arguments:
 #   $1, val name set by 'export key=val'
 #   $2, optional/required
-loadvalfromenv() {
-    eval "${1,,}=\$$1"
+loadval() {
+    eval "${1,,}=${!1}"
     _yes "$2" && ! [ "${!1}" ] && logfatal \""$1"\" is not set
 }
