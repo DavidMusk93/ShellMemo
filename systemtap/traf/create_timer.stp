@@ -1,0 +1,7 @@
+probe process("/root/esgyndb/core/sqf/export/bin64d/mxosrvr").function("CTimer_list::timer_create").call{
+    printf("@CALL %d | %s | %s\n",gettimeofday_us(),ppfunc(),$$parms$)
+}
+
+probe process("/root/esgyndb/core/sqf/export/bin64d/mxosrvr").function("CTimer_list::timer_create").return{
+    printf("@RETURN %d | %s | %p\n",gettimeofday_us(),ppfunc(),@entry($e_routine))
+}
